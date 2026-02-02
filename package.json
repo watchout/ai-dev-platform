@@ -2,17 +2,25 @@
   "name": "ai-dev-platform",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "description": "CLI tool + Dashboard for the AI Development Framework",
+  "bin": {
+    "framework": "./dist/cli/index.js"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:cli": "tsc -p tsconfig.cli.json",
     "start": "next start",
     "lint": "next lint",
-    "test": "vitest",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "test:coverage": "vitest --coverage",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "framework": "tsx src/cli/index.ts"
   },
   "dependencies": {
+    "commander": "^13.0.0",
     "next": "^15.1.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
@@ -23,6 +31,7 @@
     "@types/react-dom": "^19.0.0",
     "eslint": "^9.0.0",
     "eslint-config-next": "^15.1.0",
+    "tsx": "^4.0.0",
     "typescript": "^5.7.0",
     "vitest": "^2.0.0"
   }
