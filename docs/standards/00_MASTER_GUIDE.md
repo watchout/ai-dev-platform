@@ -14,8 +14,8 @@ OUTPUT: ・事業設計資料（アイデア検証、ペルソナ、競合、価
         ・プロダクト設計（PRD、機能仕様、UI設計）
         ・技術設計（API、DB、横断的関心事、開発規約）
         ・マーケティング設計（LP、SNS、メール、ローンチ、価格）
-        ・CLAUDE.md + .cursorrules が設定済みのプロジェクト
-        → Cursor / Claude Code で即座に開発開始できる状態
+        ・CLAUDE.md が設定済みのプロジェクト
+        → Claude Code で即座に開発開始できる状態
 ```
 
 ---
@@ -55,7 +55,7 @@ OUTPUT: ・事業設計資料（アイデア検証、ペルソナ、競合、価
   ┌─────────────────────────────────────────────────────────┐
   │  Step 3: 技術設計 + プロジェクト構築       [Claude Code] │
   │  技術スタック → API → DB → 規約 → 初期化               │
-  │  CLAUDE.md + .cursorrules 自動生成                      │
+  │  CLAUDE.md 自動生成                                     │
   │  所要時間: 2-4時間                                      │
   │  📄 参照: 10_GENERATION_CHAIN.md Step 3                 │
   └─────────────────────────────────────────────────────────┘
@@ -163,8 +163,8 @@ cd my-project
 claude "以下の仕様書内容を docs/ 配下に配置して:
        [Step 1-2 で生成した仕様書をペースト]"
 
-# CLAUDE.md と .cursorrules を設定
-claude "templates/project/CLAUDE.md と .cursorrules の
+# CLAUDE.md を設定
+claude "templates/project/CLAUDE.md の
        {{}} を実際の値で置換して"
 
 # 技術スタックに基づいてスキャフォールド
@@ -172,7 +172,7 @@ claude "docs/standards/TECH_STACK.md に基づいて
        プロジェクトを初期化して"
 ```
 
-Cursor でプロジェクトを開けば、.cursorrules が自動読み込みされ、開発開始です。
+Claude Code でプロジェクトを開けば、CLAUDE.md が自動読み込みされ、開発開始です。
 
 ---
 
@@ -228,7 +228,6 @@ ai-dev-framework-v3/
 │   ├── (開発規約テンプレート)            (12)
 │   └── project/                       ← ★ プロジェクト初期構築キット
 │       ├── CLAUDE.md                  ← Claude Code 用指示書テンプレート
-│       ├── .cursorrules               ← Cursor 用指示書テンプレート
 │       └── setup-project.sh           ← プロジェクト構築スクリプト
 │
 │   --- 仕様書テンプレート・サンプル ---
@@ -251,7 +250,7 @@ ai-dev-framework-v3/
 | 3 | **11_FEATURE_SPEC_FLOW.md** | 各機能の詳細設計。ジャンル分け→親タスク→ヒアリング→SSOT |
 | 4 | **12_SSOT_FORMAT.md** | SSOT作成時。IEEE/ISO準拠フォーマット |
 | 5 | **13_SSOT_AUDIT.md** | SSOT完成時。品質監査（95点以上で合格） |
-| 6 | **09_TOOLCHAIN.md** | 開発時。Claude.ai / Claude Code / Cursor の使い分け |
+| 6 | **09_TOOLCHAIN.md** | 開発時。Claude.ai / Claude Code の使い分け |
 
 ---
 
@@ -263,8 +262,8 @@ ai-dev-framework-v3/
 | 仕様書の内容を考える | **Claude.ai** | 壁打ちしながら詰められる |
 | ファイルを一括生成・配置 | **Claude Code** | ファイル操作が得意 |
 | プロジェクト初期構築 | **Claude Code** | スキャフォールドが得意 |
-| 日常のコーディング | **Cursor** | エディタ統合が最適 |
-| デバッグ | **Cursor** | リアルタイムでコード修正 |
+| 日常のコーディング | **Claude Code** | CLAUDE.md参照で仕様準拠 |
+| デバッグ | **Claude Code** | ファイル横断で原因特定 |
 | 機能の丸ごと実装 | **Claude Code** | 仕様書を読んで一括実装 |
 | テスト一括生成 | **Claude Code** | 複数ファイルを横断 |
 | 設計の相談 | **Claude.ai** | 対話的に検討 |
@@ -321,7 +320,6 @@ TECH_STACK（95%）
     ├─→ 開発規約一式（90%）
     └─→ プロジェクト初期構築
          ├── CLAUDE.md 生成
-         ├── .cursorrules 生成
          └── スキャフォールド実行
 ```
 
@@ -336,7 +334,6 @@ TECH_STACK（95%）
 ```
 my-project/
 ├── CLAUDE.md                     ← Claude Code 指示書（設定済み）
-├── .cursorrules                  ← Cursor 指示書（設定済み）
 │
 ├── docs/                         ← 仕様書一式（内容が入った状態）
 │   ├── idea/                     ← アイデア検証（Step 1 で生成）
@@ -353,7 +350,7 @@ my-project/
 └── package.json                  ← 依存関係設定済み
 ```
 
-→ Cursor で開いて `npm run dev` で即座に開発開始
+→ Claude Code で `npm run dev` で即座に開発開始
 
 ---
 
@@ -411,10 +408,175 @@ A: ディスカバリーをスキップし、Step 1 の IDEA_CANVAS から直接
 
 ---
 
+## 進捗表示（セットアップ時から可視化）
+
+### 概要
+
+```
+フレームワークの全工程を Step 0〜8 で管理し、
+各ステップの進捗をリアルタイムで可視化する。
+
+「今どこにいるか」「次に何をすべきか」が常に明確な状態を維持する。
+```
+
+### Step 0〜8 進捗ダッシュボード
+
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  PROJECT PROGRESS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Step 0: ディスカバリー      [##########] 100%  DONE
+  Step 1: 事業設計            [##########] 100%  DONE
+  Step 2: プロダクト設計      [########--]  80%  ACTIVE
+  Step 3: 技術設計            [----------]   0%  PENDING
+  Step 4: プロジェクト構築    [----------]   0%  PENDING
+  Step 5: 実装                [----------]   0%  PENDING
+  Step 6: テスト・監査        [----------]   0%  PENDING
+  Step 7: リリース            [----------]   0%  PENDING
+  Step 8: 保守・運用          [----------]   0%  PENDING
+
+  Overall: [####------] 35%
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+### 各 Step の進捗判定基準
+
+```
+Step 0: ディスカバリー（08_DISCOVERY_FLOW.md）
+  - Stage 1〜5 の質問完了
+  - 全体サマリー確認済み
+  → 完了条件: ユーザーがサマリーを承認
+
+Step 1: 事業設計（10_GENERATION_CHAIN.md Step 1）
+  - IDEA_CANVAS.md 80%以上
+  - USER_PERSONA.md 50%以上
+  - COMPETITOR_ANALYSIS.md 30%以上
+  - VALUE_PROPOSITION.md 50%以上
+  → 完了条件: 4資料すべてがユーザー確認済み
+
+Step 2: プロダクト設計（10_GENERATION_CHAIN.md Step 2）
+  - SSOT-0_PRD.md 90%以上
+  - SSOT-1_FEATURE_CATALOG.md 90%以上
+  - SSOT-2_UI_STATE.md 80%以上
+  - 機能仕様書（SSOT監査95点以上）
+  → 完了条件: P0機能のSSOTが95点合格
+
+Step 3: 技術設計（10_GENERATION_CHAIN.md Step 3）
+  - TECH_STACK.md 確定
+  - SSOT-3_API_CONTRACT.md 85%以上
+  - SSOT-4_DATA_MODEL.md 85%以上
+  - SSOT-5_CROSS_CUTTING.md 85%以上
+  - 開発規約一式 90%以上
+  → 完了条件: コア定義すべてが確定
+
+Step 4: プロジェクト構築
+  - リポジトリ作成
+  - スキャフォールド完了
+  - CLAUDE.md 生成・設定済み
+  - CI/CD パイプライン構築
+  - 開発環境が動作確認済み
+  → 完了条件: npm run dev が正常動作
+
+Step 5: 実装（14_IMPLEMENTATION_ORDER.md）
+  - Wave 1〜N のタスクを順次実行
+  - 各タスク: 実装 → コード監査100点 → テスト → マージ
+  → 完了条件: 全P0タスクがDone
+
+Step 6: テスト・監査
+  - 機能完了検証100点（22_FEATURE_ACCEPTANCE.md）
+  - ビジュアルテスト（20_VISUAL_TEST.md）
+  - 統合テスト実行
+  → 完了条件: 全検証項目が合格
+
+Step 7: リリース（23_DEPLOY_RELEASE.md）
+  - Staging環境デプロイ
+  - スモークテスト
+  - Production デプロイ
+  - モニタリング開始
+  → 完了条件: Production で正常稼働
+
+Step 8: 保守・運用（24_CHANGE_MANAGEMENT.md）
+  - 変更管理プロセス稼働
+  - モニタリング・アラート設定済み
+  - インシデント対応手順確立
+  → 完了条件: 継続的に運用中
+```
+
+### CLIでの進捗表示
+
+```
+$ framework status
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  PROJECT STATUS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Phase: Implementation
+  Progress: [#####-----] 50%
+
+  Steps:
+    [DONE]    0. Discovery
+    [DONE]    1. Business Design
+    [DONE]    2. Product Design
+    [DONE]    3. Technical Design
+    [DONE]    4. Project Setup
+    [ACTIVE]  5. Implementation
+    [PENDING] 6. Testing & Audit
+    [PENDING] 7. Release
+    [PENDING] 8. Maintenance
+
+  Documents:
+    [##########] 100% IDEA_CANVAS.md
+    [########--]  80% SSOT-0_PRD.md
+    [########--]  85% SSOT-3_API_CONTRACT.md
+
+  Tasks: 12 total
+    [######----] 6/12 done
+    In progress: 2
+    Backlog: 4
+
+  Recent Audits:
+    [SSOT]  feature.md     97/100 PASS
+    [CODE]  auth-api.ts    100/100 PASS
+```
+
+### セットアップ直後の初期表示
+
+```
+$ framework init
+$ framework status
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  PROJECT STATUS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Phase: Not started
+  Progress: [----------] 0%
+
+  Steps:
+    [PENDING] 0. Discovery
+    [PENDING] 1. Business Design
+    [PENDING] 2. Product Design
+    [PENDING] 3. Technical Design
+    [PENDING] 4. Project Setup
+    [PENDING] 5. Implementation
+    [PENDING] 6. Testing & Audit
+    [PENDING] 7. Release
+    [PENDING] 8. Maintenance
+
+  Next action:
+    Run 'framework discover' to start the discovery flow.
+```
+
+---
+
 ## 変更履歴
 
 | 日付 | バージョン | 変更内容 |
 |------|-----------|---------|
+| 2026-02-03 | v3.1 | Cursor削除・Claude Code一本化、進捗表示セクション追加 |
 | | v3.0 | ディスカバリーフロー、生成チェーン、ツールチェーン、マーケティング統合 |
 | | v2.0 | 3層アーキテクチャ、共通機能定義 |
 | | v1.0 | 初版 |
