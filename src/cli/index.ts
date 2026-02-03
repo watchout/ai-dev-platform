@@ -5,6 +5,8 @@ import { registerDiscoverCommand } from "./commands/discover.js";
 import { registerGenerateCommand } from "./commands/generate.js";
 import { registerPlanCommand } from "./commands/plan.js";
 import { registerAuditCommand } from "./commands/audit.js";
+import { registerRunCommand } from "./commands/run.js";
+import { registerStatusCommand } from "./commands/status.js";
 
 const program = new Command();
 
@@ -20,5 +22,7 @@ registerDiscoverCommand(program);
 registerGenerateCommand(program);
 registerPlanCommand(program);
 registerAuditCommand(program);
+registerRunCommand(program);
+registerStatusCommand(program);
 
 program.parse();
