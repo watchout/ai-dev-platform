@@ -9,6 +9,7 @@
  * - Task execution states
  * - Recent audit scores
  */
+import * as fs from "node:fs";
 import { type Command } from "commander";
 import {
   collectStatus,
@@ -26,7 +27,6 @@ export function registerStatusCommand(program: Command): void {
 
       try {
         const frameworkDir = `${projectDir}/.framework`;
-        const fs = require("node:fs");
         if (!fs.existsSync(frameworkDir)) {
           logger.error(
             "Not a framework project. Run 'framework init' first.",

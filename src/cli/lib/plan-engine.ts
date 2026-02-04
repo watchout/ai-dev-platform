@@ -223,7 +223,7 @@ export function parseFeaturesFromMarkdown(content: string): Feature[] {
     const id = cells[0];
     const name = cells[1];
     const priority = cells[2] as Feature["priority"];
-    const type = cells[3] as Feature["type"];
+    const rawType = cells[3];
     const size = cells[4] as Feature["size"];
     const deps = cells[5];
 
@@ -238,7 +238,7 @@ export function parseFeaturesFromMarkdown(content: string): Feature[] {
       name,
       priority: priority || "P1",
       size: (["S", "M", "L", "XL"].includes(size) ? size : "M") as Feature["size"],
-      type: type === "common" || type === "Common" ? "common" : "proprietary",
+      type: rawType === "common" || rawType === "Common" ? "common" : "proprietary",
       dependencies: deps && deps !== "None" && deps !== "TBD"
         ? deps.split(",").map((d) => d.trim())
         : [],
