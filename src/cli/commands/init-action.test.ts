@@ -6,9 +6,34 @@ import { initProject, type InitOptions } from "./init-action.js";
 
 describe("initProject", () => {
   let tmpDir: string;
+  let fakeFrameworkDir: string;
 
   beforeEach(() => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "fw-init-test-"));
+
+    // Create a fake framework source (avoids git clone)
+    fakeFrameworkDir = path.join(tmpDir, "_fake-framework");
+    fs.mkdirSync(fakeFrameworkDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(fakeFrameworkDir, "00_MASTER_GUIDE.md"),
+      "# Master Guide",
+    );
+    fs.writeFileSync(
+      path.join(fakeFrameworkDir, "CODING_STANDARDS.md"),
+      "# Coding Standards",
+    );
+    fs.writeFileSync(
+      path.join(fakeFrameworkDir, "TESTING_STANDARDS.md"),
+      "# Testing Standards",
+    );
+    fs.writeFileSync(
+      path.join(fakeFrameworkDir, "GIT_WORKFLOW.md"),
+      "# Git Workflow",
+    );
+    fs.writeFileSync(
+      path.join(fakeFrameworkDir, "TECH_STACK.md"),
+      "# Tech Stack",
+    );
   });
 
   afterEach(() => {
@@ -21,6 +46,7 @@ describe("initProject", () => {
       description: "A test project",
       targetDir: tmpDir,
       skipGit: true,
+      frameworkSourceDir: fakeFrameworkDir,
       ...overrides,
     };
   }
@@ -94,6 +120,31 @@ describe("initProject", () => {
     ).toBe(true);
   });
 
+  it("fetches framework docs into docs/standards/", async () => {
+    await initProject(defaultOptions());
+
+    expect(
+      fs.existsSync(
+        path.join(projectPath(), "docs/standards/00_MASTER_GUIDE.md"),
+      ),
+    ).toBe(true);
+    expect(
+      fs.existsSync(
+        path.join(projectPath(), "docs/standards/CODING_STANDARDS.md"),
+      ),
+    ).toBe(true);
+  });
+
+  it("saves framework state after fetch", async () => {
+    await initProject(defaultOptions());
+
+    expect(
+      fs.existsSync(
+        path.join(projectPath(), ".framework/framework.json"),
+      ),
+    ).toBe(true);
+  });
+
   it("generates CLAUDE.md with project info", async () => {
     await initProject(
       defaultOptions({ description: "My awesome project" }),
@@ -157,15 +208,15 @@ describe("initProject", () => {
     expect(content).toContain("SSOT-2_UI_STATE.md");
   });
 
-  it("creates document placeholders", async () => {
+  it("creates document placeholders (excluding docs/standards/)", async () => {
     await initProject(defaultOptions());
 
+    // These should be created as placeholders
     const expectedFiles = [
       "docs/idea/IDEA_CANVAS.md",
       "docs/requirements/SSOT-0_PRD.md",
       "docs/requirements/SSOT-1_FEATURE_CATALOG.md",
       "docs/design/core/SSOT-2_UI_STATE.md",
-      "docs/standards/CODING_STANDARDS.md",
       "docs/operations/DEPLOYMENT.md",
       "docs/marketing/LP_SPEC.md",
       "docs/growth/GROWTH_STRATEGY.md",
@@ -178,6 +229,13 @@ describe("initProject", () => {
         `${file} should exist`,
       ).toBe(true);
     }
+
+    // docs/standards/ files come from framework fetch, not placeholders
+    const codingStd = fs.readFileSync(
+      path.join(projectPath(), "docs/standards/CODING_STANDARDS.md"),
+      "utf-8",
+    );
+    expect(codingStd).toBe("# Coding Standards");
   });
 
   it("creates .framework/project.json with correct state", async () => {
@@ -208,7 +266,7 @@ describe("initProject", () => {
     expect(result.createdFiles).toContain("README.md");
     expect(result.createdFiles).toContain("docs/INDEX.md");
     expect(result.createdFiles).toContain(".framework/project.json");
-    expect(result.createdFiles.length).toBeGreaterThan(30);
+    expect(result.createdFiles.length).toBeGreaterThan(20);
   });
 
   it("throws if directory exists and is non-empty", async () => {

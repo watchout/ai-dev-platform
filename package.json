@@ -17,6 +17,7 @@
     "test:watch": "vitest",
     "test:coverage": "vitest --coverage",
     "type-check": "tsc --noEmit",
+    "prepare": "tsc -p tsconfig.cli.json",
     "framework": "tsx src/cli/index.ts"
   },
   "dependencies": {

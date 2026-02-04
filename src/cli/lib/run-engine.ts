@@ -10,9 +10,11 @@
  * 5. Auto-audit on completion
  */
 import * as path from "node:path";
+import * as readline from "node:readline";
 import {
   type RunState,
   type TaskExecution,
+  type ModifiedFile,
   type Escalation,
   type EscalationTrigger,
   ESCALATION_LABELS,
@@ -61,7 +63,6 @@ export interface RunResult {
 }
 
 export function createRunTerminalIO(): RunIO {
-  const readline = require("node:readline");
   return {
     print(message: string): void {
       process.stdout.write(`${message}\n`);
@@ -477,9 +478,9 @@ async function handleExistingEscalation(
 
 function simulateTaskFiles(
   task: TaskExecution,
-): { path: string; action: string }[] {
+): ModifiedFile[] {
   const base = `src/${task.featureId.toLowerCase()}`;
-  const files: { path: string; action: string }[] = [];
+  const files: ModifiedFile[] = [];
 
   switch (task.taskKind) {
     case "db":
