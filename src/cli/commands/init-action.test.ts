@@ -211,15 +211,12 @@ describe("initProject", () => {
   it("creates document placeholders (excluding docs/standards/)", async () => {
     await initProject(defaultOptions());
 
-    // These should be created as placeholders
+    // These are in the app profile's requiredTemplates
     const expectedFiles = [
       "docs/idea/IDEA_CANVAS.md",
       "docs/requirements/SSOT-0_PRD.md",
       "docs/requirements/SSOT-1_FEATURE_CATALOG.md",
       "docs/design/core/SSOT-2_UI_STATE.md",
-      "docs/operations/DEPLOYMENT.md",
-      "docs/marketing/LP_SPEC.md",
-      "docs/growth/GROWTH_STRATEGY.md",
       "docs/management/PROJECT_PLAN.md",
     ];
 

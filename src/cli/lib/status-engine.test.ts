@@ -172,6 +172,7 @@ describe("status-engine", () => {
         currentPhase: 1,
         phaseLabel: "Discovery",
         overallProgress: 25,
+        profile: null,
         phases: [
           { number: 1, label: "Discovery", status: "active" },
           { number: 2, label: "Generation", status: "pending" },
@@ -194,6 +195,7 @@ describe("status-engine", () => {
         currentPhase: 2,
         phaseLabel: "Generation",
         overallProgress: 40,
+        profile: null,
         phases: [
           { number: 1, label: "Discovery", status: "completed" },
           { number: 2, label: "Generation", status: "active" },
@@ -217,6 +219,7 @@ describe("status-engine", () => {
         currentPhase: 2,
         phaseLabel: "Generation",
         overallProgress: 30,
+        profile: null,
         phases: [],
         documents: [
           {
@@ -241,6 +244,7 @@ describe("status-engine", () => {
         currentPhase: 4,
         phaseLabel: "Implementation",
         overallProgress: 50,
+        profile: null,
         phases: [],
         documents: [],
         tasks: [
@@ -262,6 +266,7 @@ describe("status-engine", () => {
         currentPhase: 5,
         phaseLabel: "Audit & Review",
         overallProgress: 80,
+        profile: null,
         phases: [],
         documents: [],
         tasks: [],

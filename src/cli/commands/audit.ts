@@ -20,6 +20,7 @@ import {
   loadAuditReports,
   generateAuditMarkdown,
 } from "../lib/audit-model.js";
+import { loadProjectProfile, isAuditEnabled } from "../lib/profile-model.js";
 import { logger } from "../lib/logger.js";
 
 export function registerAuditCommand(program: Command): void {
@@ -58,6 +59,16 @@ export function registerAuditCommand(program: Command): void {
           if (!["ssot", "prompt", "code"].includes(mode)) {
             logger.error(
               `Invalid audit mode: ${mode}. Use: ssot, prompt, or code`,
+            );
+            process.exit(1);
+          }
+
+          // Check if audit mode is enabled for this project type
+          const profile = loadProjectProfile(projectDir);
+          if (profile && !isAuditEnabled(profile, mode)) {
+            logger.error(
+              `Audit mode "${mode}" is not enabled for project type "${profile.id}". ` +
+                `Enabled modes: ${profile.enabledAudit.join(", ")}`,
             );
             process.exit(1);
           }

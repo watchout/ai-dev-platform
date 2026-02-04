@@ -18,6 +18,7 @@ import {
   createTerminalIO,
 } from "../lib/discover-engine.js";
 import { loadSession } from "../lib/discover-session.js";
+import { loadProjectProfile } from "../lib/profile-model.js";
 import { logger } from "../lib/logger.js";
 
 export function registerDiscoverCommand(program: Command): void {
@@ -69,11 +70,16 @@ export function registerDiscoverCommand(program: Command): void {
             process.exit(1);
           }
 
+          // Load profile for stage filtering
+          const profile = loadProjectProfile(projectDir);
+          const enabledStages = profile?.discoveryStages;
+
           // Run discover engine
           const io = createTerminalIO();
           const result = await runDiscoverEngine({
             projectDir,
             io,
+            enabledStages,
           });
 
           if (result.paused) {

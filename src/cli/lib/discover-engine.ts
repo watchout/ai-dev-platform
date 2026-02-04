@@ -41,6 +41,8 @@ export interface DiscoverIO {
 export interface DiscoverEngineOptions {
   projectDir: string;
   io: DiscoverIO;
+  /** Profile-based stage filtering. Only these stages will run. */
+  enabledStages?: number[];
 }
 
 export interface DiscoverResult {
@@ -146,7 +148,7 @@ export function createTerminalIO(): DiscoverIO {
 export async function runDiscoverEngine(
   options: DiscoverEngineOptions,
 ): Promise<DiscoverResult> {
-  const { projectDir, io } = options;
+  const { projectDir, io, enabledStages } = options;
 
   // Load or create session
   let session = loadSession(projectDir);
@@ -172,6 +174,13 @@ export async function runDiscoverEngine(
   ) {
     const stageDef = getStage(stageNum);
     if (!stageDef) break;
+
+    // Skip stages not enabled by the project profile
+    if (enabledStages && !enabledStages.includes(stageNum)) {
+      confirmStage(session, stageNum, `Skipped (not in profile)`);
+      saveSession(projectDir, session);
+      continue;
+    }
 
     io.printStageHeader(stageDef);
 

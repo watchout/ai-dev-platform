@@ -3,9 +3,12 @@
  * Based on: 09_TOOLCHAIN.md, templates/project/CLAUDE.md, templates/project/.cursorrules
  */
 
+import type { ProfileType } from "./profile-model.js";
+
 export interface ProjectConfig {
   projectName: string;
   description: string;
+  profileType?: ProfileType;
 }
 
 export function generateClaudeMd(config: ProjectConfig): string {
@@ -294,6 +297,7 @@ export function generateProjectState(config: ProjectConfig): string {
     {
       name: config.projectName,
       version: "0.1.0",
+      profileType: config.profileType ?? "app",
       createdAt: now,
       updatedAt: now,
       phase: -1,
