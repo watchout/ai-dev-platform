@@ -7,6 +7,7 @@ import { registerPlanCommand } from "./commands/plan.js";
 import { registerAuditCommand } from "./commands/audit.js";
 import { registerRunCommand } from "./commands/run.js";
 import { registerStatusCommand } from "./commands/status.js";
+import { registerRetrofitCommand } from "./commands/retrofit.js";
 
 const program = new Command();
 
@@ -24,5 +25,6 @@ registerPlanCommand(program);
 registerAuditCommand(program);
 registerRunCommand(program);
 registerStatusCommand(program);
+registerRetrofitCommand(program);
 
 program.parse();
