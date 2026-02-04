@@ -18,6 +18,7 @@ import {
   calculateProgress as calcRunProgress,
 } from "./run-model.js";
 import { loadAuditReports } from "./audit-model.js";
+import { loadProjectProfile } from "./profile-model.js";
 
 // ─────────────────────────────────────────────
 // Types
@@ -51,10 +52,19 @@ export interface PhaseInfo {
   status: "pending" | "active" | "completed";
 }
 
+export interface ProfileSummary {
+  type: string;
+  name: string;
+  enabledSsot: string[];
+  enabledAudit: string[];
+  discoveryStages: number[];
+}
+
 export interface StatusResult {
   currentPhase: number;
   phaseLabel: string;
   overallProgress: number;
+  profile: ProfileSummary | null;
   phases: PhaseInfo[];
   documents: DocumentStatus[];
   tasks: TaskStatusItem[];
@@ -101,10 +111,23 @@ export function collectStatus(projectDir: string): StatusResult {
     tasks,
   );
 
+  // Load project profile
+  const projectProfile = loadProjectProfile(projectDir);
+  const profile: ProfileSummary | null = projectProfile
+    ? {
+        type: projectProfile.id,
+        name: projectProfile.name,
+        enabledSsot: projectProfile.enabledSsot,
+        enabledAudit: projectProfile.enabledAudit,
+        discoveryStages: projectProfile.discoveryStages,
+      }
+    : null;
+
   return {
     currentPhase: currentPhase?.number ?? 0,
     phaseLabel: currentPhase?.label ?? "Not started",
     overallProgress,
+    profile,
     phases,
     documents,
     tasks,
@@ -267,6 +290,17 @@ export function printStatus(
   io.print("  PROJECT STATUS");
   io.print(`${"━".repeat(38)}`);
   io.print("");
+
+  // Project type
+  if (result.profile) {
+    io.print(`  Type: ${result.profile.name} (${result.profile.type})`);
+    io.print(`  Enabled SSOTs: ${result.profile.enabledSsot.join(", ")}`);
+    io.print(`  Enabled Audits: ${result.profile.enabledAudit.join(", ")}`);
+    io.print(
+      `  Discovery Stages: ${result.profile.discoveryStages.join(", ")}`,
+    );
+    io.print("");
+  }
 
   // Overall progress
   io.print(`  Phase: ${result.phaseLabel}`);

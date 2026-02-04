@@ -17,6 +17,11 @@ import {
   type ProjectConfig,
 } from "../lib/templates.js";
 import { fetchFrameworkDocs } from "../lib/framework-fetch.js";
+import {
+  type ProfileType,
+  getProfile,
+  isTemplateEnabled,
+} from "../lib/profile-model.js";
 import { logger } from "../lib/logger.js";
 
 export interface InitOptions {
@@ -24,6 +29,8 @@ export interface InitOptions {
   description: string;
   targetDir: string;
   skipGit: boolean;
+  /** Project type profile */
+  profileType?: ProfileType;
   /** Skip git clone of framework repo (for testing) */
   frameworkSourceDir?: string;
 }
@@ -52,14 +59,19 @@ export async function initProject(options: InitOptions): Promise<InitResult> {
     }
   }
 
+  const profileType = options.profileType ?? "app";
+  const profile = getProfile(profileType);
+
   const config: ProjectConfig = {
     projectName: options.projectName,
     description: options.description,
+    profileType,
   };
 
-  // Step 1: Create directory structure
+  // Step 1: Create directory structure (profile-aware)
   logger.step(1, totalSteps, "Creating directory structure...");
-  for (const dir of PROJECT_DIRECTORIES) {
+  const directories = buildDirectoryList(profile.directories);
+  for (const dir of directories) {
     const dirPath = path.join(projectPath, dir);
     fs.mkdirSync(dirPath, { recursive: true });
   }
@@ -89,11 +101,14 @@ export async function initProject(options: InitOptions): Promise<InitResult> {
   fs.writeFileSync(cursorRulesPath, generateCursorRules(config), "utf-8");
   createdFiles.push(".cursorrules");
 
-  // Step 4: Create document placeholders
+  // Step 4: Create document placeholders (profile-filtered)
   logger.step(4, totalSteps, "Creating document placeholders...");
   for (const doc of DOC_PLACEHOLDERS) {
     // Skip docs/standards/ placeholders — they come from framework fetch
     if (doc.path.startsWith("docs/standards/")) continue;
+
+    // Skip templates not enabled for this profile
+    if (!isTemplateEnabled(profile, doc.path)) continue;
 
     const docPath = path.join(projectPath, doc.path);
     const docDir = path.dirname(docPath);
@@ -127,4 +142,40 @@ export async function initProject(options: InitOptions): Promise<InitResult> {
   createdFiles.push(".framework/project.json");
 
   return { projectPath, createdFiles, errors };
+}
+
+/**
+ * Build directory list from profile directories.
+ * Profile directories are top-level (e.g. "src", "docs/idea").
+ * For entries that match a prefix of PROJECT_DIRECTORIES, we expand
+ * to include the detailed subdirectories from PROJECT_DIRECTORIES.
+ * Always includes .framework dirs.
+ */
+function buildDirectoryList(profileDirs: string[]): string[] {
+  if (profileDirs.length === 0) {
+    return [...PROJECT_DIRECTORIES];
+  }
+
+  const result = new Set<string>();
+
+  for (const profileDir of profileDirs) {
+    // Add the profile dir itself
+    result.add(profileDir);
+
+    // Expand: include any PROJECT_DIRECTORIES entry under this prefix
+    for (const projDir of PROJECT_DIRECTORIES) {
+      if (projDir.startsWith(profileDir + "/") || projDir === profileDir) {
+        result.add(projDir);
+      }
+    }
+  }
+
+  // Always include .framework directories
+  for (const projDir of PROJECT_DIRECTORIES) {
+    if (projDir.startsWith(".framework")) {
+      result.add(projDir);
+    }
+  }
+
+  return [...result];
 }
