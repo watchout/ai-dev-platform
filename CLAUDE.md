@@ -1,7 +1,23 @@
 # CLAUDE.md - プロジェクト指示書（Claude Code用）
 
 > Claude Code はこのファイルを自動で読み込みます。
-> プロジェクトの全仕様書は docs/ にあります。
+> このリポジトリはCLIツール＋ダッシュボードの実装のみです。
+> フレームワーク仕様書（SSOT）は ai-dev-framework リポジトリにあります。
+
+---
+
+## SSOT の所在
+
+```
+ai-dev-framework リポジトリ = 唯一の真実（SSOT）
+  → フレームワーク仕様書（00〜24）
+  → テンプレート・チェックリスト
+  → docs/standards/ のすべて
+
+ai-dev-platform リポジトリ = CLIツール＋ダッシュボード
+  → フレームワークの実装のみ
+  → docs/standards/ は持たない（framework init/update で取得）
+```
 
 ---
 
@@ -18,7 +34,7 @@
 7. ビジネス判断が必要な時
 
 「推測で進める」「とりあえず仮で」は禁止。
-詳細: docs/standards/21_AI_ESCALATION.md
+参照: ai-dev-framework/21_AI_ESCALATION.md
 
 ## プロジェクト概要
 
@@ -28,6 +44,7 @@
 | 概要 | AI開発フレームワークのCLIツール＋ダッシュボード。ディスカバリーからデプロイまでの開発ライフサイクル全体を自動化 |
 | 技術スタック | Next.js 15 / React 19 / TypeScript / Vitest / Vercel |
 | リポジトリ | ai-dev-platform |
+| フレームワーク仕様 | ai-dev-framework（SSOT） |
 
 ---
 
@@ -35,50 +52,26 @@
 
 ```
 1. 仕様書がない機能は実装しない
-2. 実装前に必ず該当の仕様書を読む
+2. 実装前に必ず ai-dev-framework の該当仕様書を読む
 3. 仕様と実装の乖離を見つけたら報告する
-4. コア定義（docs/design/core/）は原則変更不可
+4. フレームワーク仕様書はこのリポジトリには配置しない（SSOTは ai-dev-framework）
 ```
 
 ---
 
-## 仕様書の参照方法
+## CLI コマンド一覧
 
-### 実装前に必ず確認するドキュメント（優先順）
-
-```
-1. 機能仕様書         → docs/design/features/
-2. コア定義           → docs/design/core/
-   - UI/状態遷移      → docs/design/core/SSOT-2_UI_STATE.md
-   - API規約          → docs/design/core/SSOT-3_API_CONTRACT.md
-   - データモデル     → docs/design/core/SSOT-4_DATA_MODEL.md
-   - 横断的関心事     → docs/design/core/SSOT-5_CROSS_CUTTING.md
-3. 開発規約           → docs/standards/
-   - コーディング規約 → docs/standards/CODING_STANDARDS.md
-   - テスト規約       → docs/standards/TESTING_STANDARDS.md
-   - Git運用          → docs/standards/GIT_WORKFLOW.md
-4. PRD               → docs/requirements/SSOT-0_PRD.md
-```
-
-### 機能を実装する時のフロー
-
-```
-1. 対象の機能仕様書を読む
-   → docs/design/features/common/  （共通機能）
-   → docs/design/features/project/ （固有機能）
-
-2. 関連するコア定義を確認
-   → API設計 → SSOT-3
-   → DB設計 → SSOT-4
-   → 認証/エラー/ログ → SSOT-5
-
-3. 実装
-   → コーディング規約に従う
-   → テスト規約に従う
-
-4. テスト
-   → 仕様書のテストケースに基づく
-```
+| コマンド | 対応仕様書 | 説明 |
+|---------|-----------|------|
+| `framework init` | 09_TOOLCHAIN | プロジェクト初期化＋フレームワーク取得 |
+| `framework discover` | 08_DISCOVERY_FLOW | アイデア検証 |
+| `framework generate` | 10_GENERATION_CHAIN | SSOT自動生成 |
+| `framework plan` | 14_IMPLEMENTATION_ORDER | 実装計画 |
+| `framework audit` | 13, 16, 17 | SSOT/プロンプト/コード監査 |
+| `framework run` | 06_FULL_LIFECYCLE | フェーズ実行 |
+| `framework status` | 06_FULL_LIFECYCLE | 進捗表示 |
+| `framework retrofit` | - | 既存プロジェクトの移行 |
+| `framework update` | - | フレームワーク仕様書の更新 |
 
 ---
 
@@ -86,7 +79,9 @@
 
 ```
 src/
-├── cli/                  ← CLIツール (framework init/run/status)
+├── cli/                  ← CLIツール (framework init/discover/generate/...)
+│   ├── commands/         ← コマンド定義
+│   └── lib/              ← エンジン・ユーティリティ
 ├── dashboard/            ← Next.js ダッシュボードアプリ
 │   ├── app/              ← App Router ページ
 │   ├── components/       ← UIコンポーネント
@@ -95,21 +90,6 @@ src/
 ├── types/                ← TypeScript 型定義
 ├── integrations/         ← GitHub, Plane, Discord連携
 └── __tests__/            ← テスト
-
-docs/
-├── idea/                 ← アイデア・検証
-├── requirements/         ← 要件定義
-├── design/               ← 設計
-│   ├── core/             ← コア定義（変更不可）
-│   ├── features/         ← 機能仕様
-│   │   ├── common/       ← 共通機能
-│   │   └── project/      ← 固有機能
-│   └── adr/              ← 設計判断記録
-├── standards/            ← 開発規約・フレームワーク文書
-├── operations/           ← 運用
-├── marketing/            ← マーケティング
-├── growth/               ← グロース
-└── management/           ← プロジェクト管理
 ```
 
 ---
@@ -130,8 +110,6 @@ docs/
 
 ## コーディング規約（要約）
 
-> 詳細: docs/standards/CODING_STANDARDS.md
-
 ### 命名規則
 - コンポーネント: PascalCase（`LoginForm.tsx`）
 - 関数/変数: camelCase（`handleSubmit`）
@@ -149,8 +127,6 @@ docs/
 ---
 
 ## Git 運用（要約）
-
-> 詳細: docs/standards/GIT_WORKFLOW.md
 
 ### ブランチ戦略
 ```
@@ -173,8 +149,6 @@ scope: 機能ID or モジュール名
 
 ## テスト規約（要約）
 
-> 詳細: docs/standards/TESTING_STANDARDS.md
-
 ### テスト種類
 - ユニットテスト: 全ビジネスロジック
 - 統合テスト: API エンドポイント
@@ -191,7 +165,7 @@ scope: 機能ID or モジュール名
 
 ```
 - 仕様書にない機能を勝手に実装しない
-- コア定義を勝手に変更しない
+- フレームワーク仕様書をこのリポジトリに配置しない（SSOTは ai-dev-framework）
 - テストなしでPRを出さない
 - any 型を使わない
 - console.log をプロダクションコードに残さない

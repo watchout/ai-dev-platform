@@ -8,6 +8,7 @@ import { registerAuditCommand } from "./commands/audit.js";
 import { registerRunCommand } from "./commands/run.js";
 import { registerStatusCommand } from "./commands/status.js";
 import { registerRetrofitCommand } from "./commands/retrofit.js";
+import { registerUpdateCommand } from "./commands/update.js";
 
 const program = new Command();
 
@@ -26,5 +27,6 @@ registerAuditCommand(program);
 registerRunCommand(program);
 registerStatusCommand(program);
 registerRetrofitCommand(program);
+registerUpdateCommand(program);
 
 program.parse();
