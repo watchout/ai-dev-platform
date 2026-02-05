@@ -2,12 +2,20 @@
  * Run engine - orchestrates task execution with escalation protocol
  * Based on: SSOT-3 §2.5, SSOT-2 §2-3, 21_AI_ESCALATION.md
  *
- * Pipeline per task:
- * 1. Load plan and build task list
+ * Pipeline per task (profile-aware):
+ *
+ * Normal flow (app/lp/hp):
+ *   SSOT → Implementation → Code Audit (Adversarial Review) → Test
+ *
+ * TDD flow (api/cli, or CORE/CONTRACT layers):
+ *   SSOT → Test Creation → Implementation → Code Audit
+ *
+ * Steps:
+ * 1. Load plan and build task list (TDD-aware ordering)
  * 2. Pick next pending task (or specified taskId)
  * 3. Generate implementation prompt
  * 4. Execute (with escalation triggers)
- * 5. Auto-audit on completion
+ * 5. Auto-audit (Adversarial Review) on completion
  */
 import * as path from "node:path";
 import * as readline from "node:readline";
@@ -32,9 +40,12 @@ import {
 import {
   type PlanState,
   type Task,
+  type TaskOrderMode,
   decomposeFeature,
+  determineTaskOrderMode,
   loadPlan,
 } from "./plan-model.js";
+import { loadProfileType } from "./profile-model.js";
 
 // ─────────────────────────────────────────────
 // Public API
@@ -106,7 +117,9 @@ export async function runTask(
         errors,
       };
     }
-    state = initRunStateFromPlan(plan);
+    // Load profile type for TDD mode determination
+    const profileType = loadProfileType(projectDir) ?? "app";
+    state = initRunStateFromPlan(plan, { profileType });
     saveRunState(projectDir, state);
   }
 
@@ -271,14 +284,30 @@ export async function runTask(
 // Plan → Run State Initialization
 // ─────────────────────────────────────────────
 
+export interface InitRunStateOptions {
+  /** Profile type (app/lp/hp/api/cli) for TDD determination */
+  profileType?: string;
+}
+
+/**
+ * Initialize run state from plan.
+ * Task ordering depends on profile type:
+ * - api/cli: TDD mode (test first)
+ * - app/lp/hp: Normal mode (test after implementation)
+ */
 export function initRunStateFromPlan(
   plan: PlanState,
+  options: InitRunStateOptions = {},
 ): RunState {
   const state = createRunState();
+  const profileType = options.profileType ?? "app";
 
   for (const wave of plan.waves) {
     for (const feature of wave.features) {
-      const tasks = decomposeFeature(feature);
+      // Determine task order mode based on profile and feature type
+      const orderMode = determineTaskOrderMode(profileType, feature.type);
+      const tasks = decomposeFeature(feature, orderMode);
+
       for (const task of tasks) {
         state.tasks.push({
           taskId: task.id,
@@ -340,9 +369,10 @@ export function generateTaskPrompt(task: TaskExecution): string {
       lines.push("3. Cover normal, abnormal, boundary cases");
       break;
     case "review":
-      lines.push("1. Run code audit (framework audit code)");
+      lines.push("1. Run Adversarial Review (framework audit code)");
       lines.push("2. Verify SSOT compliance");
       lines.push("3. Check all MUST requirements");
+      lines.push("4. Identify edge cases and failure modes");
       break;
     default:
       lines.push("1. Implement feature according to SSOT");

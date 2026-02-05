@@ -5,6 +5,7 @@ import * as os from "node:os";
 import {
   type Feature,
   decomposeFeature,
+  determineTaskOrderMode,
   buildDependencyGraph,
   detectCircularDependencies,
   topologicalSort,
@@ -33,20 +34,31 @@ describe("plan-model", () => {
       expect(tasks).toHaveLength(6);
     });
 
-    it("task IDs follow FEAT-ID-KIND format", () => {
+    it("normal mode: task IDs follow impl-first order (DB → API → UI → Integration → Review → Test)", () => {
       const feature = makeFeature({ id: "FEAT-001" });
-      const tasks = decomposeFeature(feature);
+      const tasks = decomposeFeature(feature, "normal");
       expect(tasks[0].id).toBe("FEAT-001-DB");
       expect(tasks[1].id).toBe("FEAT-001-API");
       expect(tasks[2].id).toBe("FEAT-001-UI");
       expect(tasks[3].id).toBe("FEAT-001-INTEGRATION");
-      expect(tasks[4].id).toBe("FEAT-001-TEST");
+      expect(tasks[4].id).toBe("FEAT-001-REVIEW");
+      expect(tasks[5].id).toBe("FEAT-001-TEST");
+    });
+
+    it("TDD mode: task IDs follow test-first order (Test → DB → API → UI → Integration → Review)", () => {
+      const feature = makeFeature({ id: "FEAT-001" });
+      const tasks = decomposeFeature(feature, "tdd");
+      expect(tasks[0].id).toBe("FEAT-001-TEST");
+      expect(tasks[1].id).toBe("FEAT-001-DB");
+      expect(tasks[2].id).toBe("FEAT-001-API");
+      expect(tasks[3].id).toBe("FEAT-001-UI");
+      expect(tasks[4].id).toBe("FEAT-001-INTEGRATION");
       expect(tasks[5].id).toBe("FEAT-001-REVIEW");
     });
 
     it("tasks are chained: each blocks the next", () => {
       const feature = makeFeature({ id: "FEAT-001" });
-      const tasks = decomposeFeature(feature);
+      const tasks = decomposeFeature(feature, "normal");
 
       // First task has no blockedBy
       expect(tasks[0].blockedBy).toHaveLength(0);
@@ -64,6 +76,32 @@ describe("plan-model", () => {
       expect(tasks[0].references).toEqual(["§4"]);
       expect(tasks[1].references).toEqual(["§5", "§7", "§9"]);
       expect(tasks[2].references).toEqual(["§6"]);
+    });
+  });
+
+  describe("determineTaskOrderMode", () => {
+    it("returns tdd for api profile", () => {
+      expect(determineTaskOrderMode("api")).toBe("tdd");
+    });
+
+    it("returns tdd for cli profile", () => {
+      expect(determineTaskOrderMode("cli")).toBe("tdd");
+    });
+
+    it("returns tdd for app profile with common features", () => {
+      expect(determineTaskOrderMode("app", "common")).toBe("tdd");
+    });
+
+    it("returns normal for app profile with proprietary features", () => {
+      expect(determineTaskOrderMode("app", "proprietary")).toBe("normal");
+    });
+
+    it("returns normal for lp profile", () => {
+      expect(determineTaskOrderMode("lp")).toBe("normal");
+    });
+
+    it("returns normal for hp profile", () => {
+      expect(determineTaskOrderMode("hp")).toBe("normal");
     });
   });
 
