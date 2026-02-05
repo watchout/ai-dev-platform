@@ -1,12 +1,14 @@
 /**
  * framework audit - Quality audit command
  *
- * Reference: 13_SSOT_AUDIT.md, 16_PROMPT_AUDIT.md, 17_CODE_AUDIT.md
+ * Reference: 13_SSOT_AUDIT.md, 17_CODE_AUDIT.md
  *
- * Runs quality audits on SSOT documents, prompts, and code:
+ * Runs quality audits on SSOT documents and code:
  * - SSOT audit: 10 categories, 95+ to pass
- * - Prompt audit: 8 categories, 100 mandatory
- * - Code audit: 8 categories, 100 mandatory
+ * - Code audit: Adversarial Review, 8 categories, 100 mandatory
+ *
+ * Note: Prompt audit is deprecated. Use --legacy flag to enable.
+ * New flow: SSOT → Implementation → Code Audit → Test
  */
 import * as fs from "node:fs";
 import * as path from "node:path";
@@ -23,17 +25,24 @@ import {
 import { loadProjectProfile, isAuditEnabled } from "../lib/profile-model.js";
 import { logger } from "../lib/logger.js";
 
+/** Audit modes available by default (prompt is deprecated) */
+const DEFAULT_AUDIT_MODES = ["ssot", "code"];
+
+/** All audit modes including legacy */
+const ALL_AUDIT_MODES = ["ssot", "prompt", "code"];
+
 export function registerAuditCommand(program: Command): void {
   program
     .command("audit")
     .description(
-      "Run quality audits (ssot, prompt, code)",
+      "Run quality audits (ssot, code). Use --legacy for prompt mode.",
     )
-    .argument("<mode>", "Audit mode: ssot | prompt | code")
+    .argument("<mode>", "Audit mode: ssot | code (prompt with --legacy)")
     .argument("[target]", "Path to file to audit")
     .option("--output <path>", "Write report to markdown file")
     .option("--id <id>", "Target identifier (default: filename)")
     .option("--status", "Show recent audit results")
+    .option("--legacy", "Enable deprecated prompt audit mode")
     .action(
       async (
         mode: string,
@@ -42,23 +51,47 @@ export function registerAuditCommand(program: Command): void {
           output?: string;
           id?: string;
           status?: boolean;
+          legacy?: boolean;
         },
       ) => {
         const projectDir = process.cwd();
 
         try {
           if (options.status) {
-            const auditMode = ["ssot", "prompt", "code"].includes(mode)
+            const auditMode = ALL_AUDIT_MODES.includes(mode)
               ? (mode as AuditMode)
               : undefined;
             printAuditStatus(projectDir, auditMode);
             return;
           }
 
-          // Validate mode
-          if (!["ssot", "prompt", "code"].includes(mode)) {
+          // Validate mode (prompt requires --legacy)
+          const availableModes = options.legacy
+            ? ALL_AUDIT_MODES
+            : DEFAULT_AUDIT_MODES;
+
+          if (!availableModes.includes(mode)) {
+            if (mode === "prompt" && !options.legacy) {
+              logger.error(
+                `Prompt audit is deprecated. Use --legacy to enable it.`,
+              );
+              logger.info(
+                `New flow: SSOT → Implementation → Code Audit (Adversarial Review) → Test`,
+              );
+            } else {
+              logger.error(
+                `Invalid audit mode: ${mode}. Use: ${availableModes.join(", ")}`,
+              );
+            }
+            process.exit(1);
+          }
+
+          // Check if audit mode is enabled for this project type
+          const profile = loadProjectProfile(projectDir);
+          if (profile && !isAuditEnabled(profile, mode)) {
             logger.error(
-              `Invalid audit mode: ${mode}. Use: ssot, prompt, or code`,
+              `Audit mode "${mode}" is not enabled for project type "${profile.id}". ` +
+                `Enabled modes: ${profile.enabledAudit.join(", ")}`,
             );
             process.exit(1);
           }

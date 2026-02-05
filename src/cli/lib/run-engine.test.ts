@@ -66,17 +66,40 @@ describe("run-engine", () => {
   });
 
   describe("initRunStateFromPlan", () => {
-    it("decomposes features into tasks", () => {
+    it("decomposes features into tasks (app profile uses TDD for common features)", () => {
       const plan = makePlan();
-      const state = initRunStateFromPlan(plan);
+      // Common features in app profile use TDD (test first)
+      const state = initRunStateFromPlan(plan, { profileType: "app" });
 
-      expect(state.tasks.length).toBe(6); // 6 tasks per feature
-      expect(state.tasks[0].taskId).toBe("AUTH-001-DB");
-      expect(state.tasks[1].taskId).toBe("AUTH-001-API");
-      expect(state.tasks[2].taskId).toBe("AUTH-001-UI");
-      expect(state.tasks[3].taskId).toBe("AUTH-001-INTEGRATION");
-      expect(state.tasks[4].taskId).toBe("AUTH-001-TEST");
+      expect(state.tasks.length).toBe(6);
+      // TDD order for common features: TEST → DB → API → UI → INTEGRATION → REVIEW
+      expect(state.tasks[0].taskId).toBe("AUTH-001-TEST");
+      expect(state.tasks[1].taskId).toBe("AUTH-001-DB");
+      expect(state.tasks[2].taskId).toBe("AUTH-001-API");
+      expect(state.tasks[3].taskId).toBe("AUTH-001-UI");
+      expect(state.tasks[4].taskId).toBe("AUTH-001-INTEGRATION");
       expect(state.tasks[5].taskId).toBe("AUTH-001-REVIEW");
+    });
+
+    it("api profile uses TDD order for all features", () => {
+      const plan = makePlan();
+      plan.waves[0].features[0].type = "proprietary";
+      const state = initRunStateFromPlan(plan, { profileType: "api" });
+
+      // TDD order: TEST → DB → API → UI → INTEGRATION → REVIEW
+      expect(state.tasks[0].taskId).toBe("AUTH-001-TEST");
+      expect(state.tasks[5].taskId).toBe("AUTH-001-REVIEW");
+    });
+
+    it("lp profile uses normal order (impl first)", () => {
+      const plan = makePlan();
+      plan.waves[0].features[0].type = "proprietary";
+      const state = initRunStateFromPlan(plan, { profileType: "lp" });
+
+      // Normal order: DB → API → UI → INTEGRATION → REVIEW → TEST
+      expect(state.tasks[0].taskId).toBe("AUTH-001-DB");
+      expect(state.tasks[4].taskId).toBe("AUTH-001-REVIEW");
+      expect(state.tasks[5].taskId).toBe("AUTH-001-TEST");
     });
 
     it("all tasks start as backlog", () => {
@@ -216,7 +239,8 @@ describe("run-engine", () => {
         io,
       });
       expect(result.status).toBe("completed");
-      expect(result.taskId).toBe("AUTH-001-DB");
+      // Feature type is "common", defaults to app profile → TDD mode, TEST first
+      expect(result.taskId).toBe("AUTH-001-TEST");
 
       // Verify state was persisted
       const statePath = path.join(tmpDir, ".framework/run-state.json");

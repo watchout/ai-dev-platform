@@ -62,27 +62,99 @@ export interface PlanState {
 // Task Decomposition
 // ─────────────────────────────────────────────
 
-const TASK_DEFINITIONS: { kind: TaskKind; name: string; references: string[] }[] = [
+/**
+ * Task definitions for normal flow:
+ * SSOT → Implementation (db → api → ui → integration) → Code Audit → Test
+ */
+const TASK_DEFINITIONS_NORMAL: {
+  kind: TaskKind;
+  name: string;
+  references: string[];
+}[] = [
   { kind: "db", name: "Database", references: ["§4"] },
   { kind: "api", name: "API", references: ["§5", "§7", "§9"] },
   { kind: "ui", name: "UI", references: ["§6"] },
   { kind: "integration", name: "Integration", references: ["§5", "§6"] },
+  { kind: "review", name: "Code Audit", references: ["All"] },
   { kind: "test", name: "Testing", references: ["§10"] },
-  { kind: "review", name: "Review", references: ["All"] },
 ];
 
 /**
- * Decompose a feature into standard tasks
+ * Task definitions for TDD flow (api/cli profiles, CORE/CONTRACT layers):
+ * SSOT → Test creation → Implementation → Code Audit
  */
-export function decomposeFeature(feature: Feature): Task[] {
-  return TASK_DEFINITIONS.map((def, idx) => {
+const TASK_DEFINITIONS_TDD: {
+  kind: TaskKind;
+  name: string;
+  references: string[];
+}[] = [
+  { kind: "test", name: "Testing (TDD)", references: ["§10"] },
+  { kind: "db", name: "Database", references: ["§4"] },
+  { kind: "api", name: "API", references: ["§5", "§7", "§9"] },
+  { kind: "ui", name: "UI", references: ["§6"] },
+  { kind: "integration", name: "Integration", references: ["§5", "§6"] },
+  { kind: "review", name: "Code Audit", references: ["All"] },
+];
+
+export type TaskOrderMode = "normal" | "tdd";
+
+/**
+ * Determine if TDD mode should be enforced based on profile type and feature type
+ *
+ * TDD is enforced for:
+ * - Profile types: api, cli
+ * - SSOT layer: CORE (data model), CONTRACT (API contract)
+ *
+ * Normal flow for:
+ * - Profile types: app, lp, hp
+ * - SSOT layer: DETAIL (UI features)
+ */
+export function determineTaskOrderMode(
+  profileType: string,
+  featureType?: FeatureType,
+): TaskOrderMode {
+  // Profile-based TDD: api and cli always use TDD
+  if (profileType === "api" || profileType === "cli") {
+    return "tdd";
+  }
+
+  // Feature-type based: common features (CORE/CONTRACT) use TDD in non-TDD profiles
+  // For app/lp/hp, use TDD for backend-heavy common features
+  if (
+    profileType === "app" &&
+    featureType === "common"
+  ) {
+    return "tdd";
+  }
+
+  return "normal";
+}
+
+/**
+ * Decompose a feature into standard tasks.
+ *
+ * @param feature The feature to decompose
+ * @param orderMode Task ordering mode: "normal" or "tdd"
+ *   - normal: Implementation → Code Audit → Test
+ *   - tdd: Test → Implementation → Code Audit
+ */
+export function decomposeFeature(
+  feature: Feature,
+  orderMode: TaskOrderMode = "normal",
+): Task[] {
+  const taskDefs =
+    orderMode === "tdd" ? TASK_DEFINITIONS_TDD : TASK_DEFINITIONS_NORMAL;
+
+  return taskDefs.map((def, idx) => {
     const taskId = `${feature.id}-${def.kind.toUpperCase()}`;
-    const prevTaskId = idx > 0
-      ? `${feature.id}-${TASK_DEFINITIONS[idx - 1].kind.toUpperCase()}`
-      : undefined;
-    const nextTaskId = idx < TASK_DEFINITIONS.length - 1
-      ? `${feature.id}-${TASK_DEFINITIONS[idx + 1].kind.toUpperCase()}`
-      : undefined;
+    const prevTaskId =
+      idx > 0
+        ? `${feature.id}-${taskDefs[idx - 1].kind.toUpperCase()}`
+        : undefined;
+    const nextTaskId =
+      idx < taskDefs.length - 1
+        ? `${feature.id}-${taskDefs[idx + 1].kind.toUpperCase()}`
+        : undefined;
 
     return {
       id: taskId,
