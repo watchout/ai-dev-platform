@@ -88,7 +88,7 @@ src/
 │   └── lib/              ← ユーティリティ
 ├── lib/                  ← 共有ライブラリ
 ├── types/                ← TypeScript 型定義
-├── integrations/         ← GitHub, Plane, Discord連携
+├── integrations/         ← GitHub Projects, Discord連携
 └── __tests__/            ← テスト
 ```
 

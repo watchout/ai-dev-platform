@@ -94,7 +94,7 @@ Cursor/Lovable等のバイブコーディングツール とは異なり、
 | UC-004 | 新規プロジェクトをフレームワークで初期化する | 全ユーザー | P0 |
 | UC-005 | 開発進捗をダッシュボードで確認する | 全ユーザー | P1 |
 | UC-006 | マーケティング資料を自動生成する | 全ユーザー | P1 |
-| UC-007 | 外部ツール（GitHub/Plane/Discord）と連携する | チーム | P1 |
+| UC-007 | 外部ツール（GitHub Projects/Discord）と連携する | チーム | P1 |
 
 ### 3.2 ユーザーストーリー
 
@@ -140,7 +140,7 @@ so that セットアップに時間をかけずにすぐ開発を始められる
 - [x] リポジトリベース自動開発（AI実装 + 確認フロー）
 - [x] コード監査・テスト監査の自動化
 - [ ] Next.jsダッシュボード（進捗・スコア・アラート表示）
-- [ ] 外部連携（GitHub Issues/PR、Plane、Discord通知）
+- [ ] 外部連携（GitHub Projects/Issues/PR、Discord通知）
 
 ### 4.2 Non-Goals（やらないこと）
 
@@ -211,8 +211,7 @@ so that セットアップに時間をかけずにすぐ開発を始められる
 | 依存先 | 内容 | リスク |
 |-------|------|-------|
 | Anthropic Claude API | AI推論エンジン | API障害時にCLIが停止 |
-| GitHub API | リポジトリ操作・Issue管理 | 認証トークン管理 |
-| Plane API | タスク管理連携 | APIの安定性 |
+| GitHub API | リポジトリ操作・Issue/Projects管理 | 認証トークン管理 |
 | Discord Webhook | 通知連携 | 通知遅延の可能性 |
 
 ---
@@ -235,7 +234,7 @@ so that セットアップに時間をかけずにすぐ開発を始められる
 | Phase 1 | MVP: CLI コア（init / discover / generate） | 開発中 |
 | Phase 2 | CLI 拡張（plan / run / audit / status） | 未着手 |
 | Phase 3 | ダッシュボード（進捗表示・スコア表示） | 未着手 |
-| Phase 4 | 外部連携（GitHub / Plane / Discord） | 未着手 |
+| Phase 4 | 外部連携（GitHub Projects / Discord） | 未着手 |
 
 ---
 

@@ -6,7 +6,7 @@ CLI tool + Dashboard for the AI Development Framework. Automates the entire deve
 
 - **CLI**: `framework init / run / status` commands
 - **Dashboard**: Next.js on Vercel (progress, scores, alerts)
-- **Integrations**: GitHub, Plane, Discord
+- **Integrations**: GitHub Projects, Discord
 
 ## Project Structure
 
@@ -20,7 +20,7 @@ ai-dev-platform/
 │   │   └── lib/          ← Utilities
 │   ├── lib/              ← Shared libraries
 │   ├── types/            ← TypeScript type definitions
-│   └── integrations/     ← GitHub, Plane, Discord connectors
+│   └── integrations/     ← GitHub Projects, Discord connectors
 ├── docs/
 │   ├── idea/             ← Idea validation
 │   ├── requirements/     ← Requirements (PRD, Feature Catalog)

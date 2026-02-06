@@ -195,7 +195,7 @@
 | ID | 機能 | 必要 | 優先度 | 状態 | 備考 |
 |----|------|------|-------|------|------|
 | INT-001 | GitHub連携（Issue/PR自動作成） | ☐ | P2 | Out of Scope | Phase 4 |
-| INT-002 | Plane連携（タスク同期） | ☐ | P2 | Out of Scope | Phase 4 |
+| INT-002 | GitHub Projects連携（タスク同期） | ☐ | P2 | Out of Scope | Phase 4 |
 | INT-003 | Discord連携（通知Webhook） | ☐ | P2 | Out of Scope | Phase 4 |
 
 ---

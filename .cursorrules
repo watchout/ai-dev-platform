@@ -96,7 +96,7 @@ src/
 │   └── lib/          ← ユーティリティ
 ├── lib/              ← 共有ライブラリ
 ├── types/            ← 型定義
-├── integrations/     ← 外部連携 (GitHub, Plane, Discord)
+├── integrations/     ← 外部連携 (GitHub Projects, Discord)
 └── __tests__/        ← テスト
 ```
 
