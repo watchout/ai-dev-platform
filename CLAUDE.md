@@ -94,6 +94,36 @@ src/
 
 ---
 
+## Agent Teams（CLI パターン）
+
+`framework init` で生成されるプロジェクトには `.claude/agents/` が自動配置される。
+このリポジトリ自体の開発でも Agent Teams を活用すること。
+
+### エージェント定義テンプレート（templates.ts で生成）
+
+```
+.claude/agents/
+├── visual-tester.md     ← ビジュアルテスト専門（20_VISUAL_TEST.md §4）
+├── code-reviewer.md     ← Adversarial Review Role B（17_CODE_AUDIT.md）
+└── ssot-explorer.md     ← SSOT検索・要約
+```
+
+### 関連コード
+
+```
+src/cli/lib/templates.ts          ← エージェントテンプレート生成関数
+src/cli/lib/project-structure.ts  ← .claude/agents ディレクトリ定義
+src/cli/commands/init-action.ts   ← Step 7 でテンプレート配置
+```
+
+### 参照ドキュメント
+
+- ai-dev-framework/09_TOOLCHAIN.md §8: Agent Teams アーキテクチャ
+- ai-dev-framework/20_VISUAL_TEST.md §4: CLI パターンでのビジュアルテスト
+- ai-dev-framework/17_CODE_AUDIT.md: Adversarial Review の4実行方法
+
+---
+
 ## 技術スタック
 
 | カテゴリ | 技術 |
