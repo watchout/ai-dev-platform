@@ -31,6 +31,9 @@ export const PROJECT_DIRECTORIES = [
   // other
   "public",
 
+  // Agent Teams (CLI pattern)
+  ".claude/agents",
+
   // framework state
   ".framework/audits/ssot",
   ".framework/audits/prompt",
