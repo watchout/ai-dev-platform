@@ -96,6 +96,7 @@ function printResult(result: InitResult, profileType: ProfileType): void {
     "├── .cursorrules",
     "├── .gitignore",
     "├── README.md",
+    "├── .claude/agents/    <- Agent Teams (CLI pattern)",
     "├── docs/              <- Specifications (placeholders ready)",
     "│   └── INDEX.md",
     "├── src/               <- Source code",

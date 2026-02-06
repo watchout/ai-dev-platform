@@ -294,4 +294,52 @@ describe("initProject", () => {
     expect(result.projectPath).toBe(path.join(tmpDir, "my-saas-app"));
     expect(fs.existsSync(path.join(tmpDir, "my-saas-app"))).toBe(true);
   });
+
+  it("creates .claude/agents/ directory with agent templates", async () => {
+    await initProject(defaultOptions());
+
+    const agentsDir = path.join(projectPath(), ".claude/agents");
+    expect(fs.existsSync(agentsDir)).toBe(true);
+
+    const expectedAgents = [
+      "visual-tester.md",
+      "code-reviewer.md",
+      "ssot-explorer.md",
+    ];
+
+    for (const agent of expectedAgents) {
+      const agentPath = path.join(agentsDir, agent);
+      expect(fs.existsSync(agentPath), `${agent} should exist`).toBe(true);
+
+      const content = fs.readFileSync(agentPath, "utf-8");
+      expect(content.length).toBeGreaterThan(0);
+    }
+  });
+
+  it("agent templates contain project name", async () => {
+    await initProject(defaultOptions({ projectName: "my-app" }));
+
+    const agentPath = path.join(
+      tmpDir,
+      "my-app",
+      ".claude/agents/visual-tester.md",
+    );
+    const content = fs.readFileSync(agentPath, "utf-8");
+    expect(content).toContain("my-app");
+    expect(content).toContain("Visual Tester Agent");
+  });
+
+  it("includes agent files in createdFiles list", async () => {
+    const result = await initProject(defaultOptions());
+
+    expect(result.createdFiles).toContain(
+      ".claude/agents/visual-tester.md",
+    );
+    expect(result.createdFiles).toContain(
+      ".claude/agents/code-reviewer.md",
+    );
+    expect(result.createdFiles).toContain(
+      ".claude/agents/ssot-explorer.md",
+    );
+  });
 });

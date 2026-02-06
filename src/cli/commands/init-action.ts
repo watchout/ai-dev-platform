@@ -14,6 +14,7 @@ import {
   generateReadme,
   generateDocsIndex,
   generateProjectState,
+  AGENT_TEMPLATES,
   type ProjectConfig,
 } from "../lib/templates.js";
 import { fetchFrameworkDocs } from "../lib/framework-fetch.js";
@@ -46,7 +47,7 @@ export async function initProject(options: InitOptions): Promise<InitResult> {
   const createdFiles: string[] = [];
   const errors: string[] = [];
 
-  const totalSteps = 7;
+  const totalSteps = 8;
 
   // Check if directory already exists and is non-empty
   if (fs.existsSync(projectPath)) {
@@ -135,8 +136,21 @@ export async function initProject(options: InitOptions): Promise<InitResult> {
   fs.writeFileSync(readmePath, generateReadme(config), "utf-8");
   createdFiles.push("README.md");
 
-  // Step 7: Create framework state
-  logger.step(7, totalSteps, "Initializing framework state...");
+  // Step 7: Create Agent Teams templates (.claude/agents/)
+  logger.step(7, totalSteps, "Creating Agent Teams templates...");
+  for (const agent of AGENT_TEMPLATES) {
+    const agentPath = path.join(projectPath, ".claude/agents", agent.filename);
+    const agentDir = path.dirname(agentPath);
+    if (!fs.existsSync(agentDir)) {
+      fs.mkdirSync(agentDir, { recursive: true });
+    }
+    fs.writeFileSync(agentPath, agent.generate(config), "utf-8");
+    createdFiles.push(`.claude/agents/${agent.filename}`);
+  }
+  logger.success(`Created ${AGENT_TEMPLATES.length} agent definitions`);
+
+  // Step 8: Create framework state
+  logger.step(8, totalSteps, "Initializing framework state...");
   const statePath = path.join(projectPath, ".framework/project.json");
   fs.writeFileSync(statePath, generateProjectState(config), "utf-8");
   createdFiles.push(".framework/project.json");

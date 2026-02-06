@@ -96,16 +96,6 @@ export function registerAuditCommand(program: Command): void {
             process.exit(1);
           }
 
-          // Check if audit mode is enabled for this project type
-          const profile = loadProjectProfile(projectDir);
-          if (profile && !isAuditEnabled(profile, mode)) {
-            logger.error(
-              `Audit mode "${mode}" is not enabled for project type "${profile.id}". ` +
-                `Enabled modes: ${profile.enabledAudit.join(", ")}`,
-            );
-            process.exit(1);
-          }
-
           // Validate target
           if (!target) {
             logger.error(
