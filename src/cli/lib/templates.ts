@@ -1,6 +1,6 @@
 /**
  * Template generators for project initialization files.
- * Based on: 09_TOOLCHAIN.md, templates/project/CLAUDE.md, templates/project/.cursorrules
+ * Based on: 09_TOOLCHAIN.md, templates/project/CLAUDE.md
  */
 
 import type { ProfileType } from "./profile-model.js";
@@ -105,7 +105,7 @@ docs/
 }
 
 export function generateCursorRules(config: ProjectConfig): string {
-  return `# .cursorrules - Cursor IDE Instructions
+  return `# .cursorrules - IDE Instructions
 
 ## Project: ${config.projectName}
 
@@ -216,10 +216,10 @@ All specifications are in \`docs/\`. See [docs/INDEX.md](docs/INDEX.md) for the 
 
 ## Development
 
-- **Claude Code**: Large feature implementation, batch processing
-- **Cursor**: Daily coding, debugging
+- **Claude Code CLI**: Interactive implementation, debugging
+- **Claude Code Web**: Async execution of spec-confirmed tasks
 
-See \`CLAUDE.md\` / \`.cursorrules\` for detailed instructions.
+See \`CLAUDE.md\` for detailed instructions.
 `;
 }
 
