@@ -416,7 +416,7 @@ ${ans(answers, "Q3-1")}
 
 ${ans(answers, "Q3-2")}
 
-> TODO: Assign feature IDs, add acceptance criteria
+> **[要記入]** 各機能にIDを割り当て、受け入れ基準を追加してください
 
 ---
 
@@ -482,7 +482,7 @@ export function generateFeatureCatalog(answers: DiscoverAnswers): string {
 
 ## 2. Feature List
 
-> TODO: Decompose the features above into individual feature entries
+> **[要記入]** 上記の機能を個別の機能エントリに分解してください
 
 | ID | Feature Name | Priority | Type | Size | Dependencies |
 |----|-------------|----------|------|------|-------------|
