@@ -377,7 +377,7 @@ describe("generateSSOTStub", () => {
     const expected = { ssoId: "UNKNOWN", name: "Unknown Doc", path: "docs/unknown.md", required: false };
     const result = generateSSOTStub(expected, [], "my-app");
     expect(result).toContain("Unknown Doc");
-    expect(result).toContain("TODO");
+    expect(result).toContain("[要記入]");
   });
 });
 

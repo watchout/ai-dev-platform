@@ -95,6 +95,11 @@ export async function runAudit(
 
   printAuditSummary(io, report);
 
+  // Agent Teams guidance for code audit (17_CODE_AUDIT.md)
+  if (mode === "code" && report.verdict !== "pass") {
+    printAgentTeamsGuidance(io, report);
+  }
+
   const filename = saveAuditReport(projectDir, report);
   io.print(`  Report saved: .framework/audits/${filename}`);
   io.print("");
@@ -875,6 +880,34 @@ function printAuditSummary(io: AuditIO, report: AuditReport): void {
     );
     io.print("");
   }
+}
+
+function printAgentTeamsGuidance(
+  io: AuditIO,
+  report: AuditReport,
+): void {
+  io.print("  ─── Agent Teams Guidance ───");
+  io.print("");
+  io.print("  Adversarial Review (17_CODE_AUDIT.md) で品質を改善できます:");
+  io.print("");
+  io.print("  CLI パターン（推奨）:");
+  io.print(
+    '    "code-reviewer エージェントで ' +
+      report.target.path +
+      ' をレビューして"',
+  );
+  io.print("");
+  io.print("  Web パターン（非同期）:");
+  io.print(
+    '    & "17_CODE_AUDIT.md に基づいて ' +
+      report.target.path +
+      ' をレビューして"',
+  );
+  io.print("");
+  io.print(
+    `  現在スコア: ${report.totalScore}/100 → 100点で合格（反復上限: 3回）`,
+  );
+  io.print("");
 }
 
 function createEmptyReport(
